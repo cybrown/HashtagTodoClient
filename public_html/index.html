@@ -1,10 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html ng-app>
     <head>
-        <title></title>
+        <title>HashtagTodoClient</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="js/lib/angular-unstable/angular.min.js"></script>
+        <script>
+            var Todo = function () {
+                this.title = '';
+                this.description = '';
+                this.createDate = new Date();
+                this.doneDate = null;
+            };
+            
+            Todo.prototype.isDone = function () {
+                return this.doneDate != null;
+            };
+    
+            function test($scope, $http) {
+                $scope.todos = [];
+                $http.get('data.json').success(function (data) {
+                    data.forEach(function (jsonTodo) {
+                        var todo = new Todo();
+                        todo.title = jsonTodo.title;
+                        todo.description = jsonTodo.description;
+                        todo.createDate = new Date(jsonTodo.createDate);
+                        todo.doneDate = jsonTodo.doneDate ? new Date(jsonTodo.doneDate) : null
+                        $scope.todos.push(todo);
+                    });
+                });
+            }
+        </script>
+        <style>
+            .todo-done {
+                text-decoration: line-through;
+            }
+        </style>
     </head>
-    <body>
-        <div>TODO write content</div>
+    <body ng-controller="test">
+        <div>Nombre de todos: {{todos.length}}.</div>
+        <ul>
+            <li ng-repeat="todo in todos | orderBy:doneDate">
+                <div class="{{todo.doneDate ? 'todo-done' : ''}}">
+                    <input type="checkbox" ng-checked="todo.isDone()" />
+                    <span>{{todo.title}}</span>
+                    <span ng-hide="!todo.isDone()"> : {{todo.doneDate.toLocaleString()}}</span>
+                </div>
+            </li>
+        </ul>
     </body>
 </html>
